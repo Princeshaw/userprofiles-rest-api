@@ -7,17 +7,27 @@ class HelloSerializers(serializers.Serializer):
     """Serializers a name fiel for testing our APIView"""
     name = serializers.CharField(max_length=10)
 
+class ProfileFeedItemSerializer(serializers.ModelSerializer):
+    """Serializes profile feed items"""
+    #user = UserProfileSerializer(queryset=models.UserProfile.objects.all())
+    class Meta:
+        model = models.ProfileFeedItem
+        fields = ('id', 'user_profile', 'status_text', 'created_on')
+        extra_kwargs = {'user_profile': {'read_only': True}}
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializers a user profile object"""
     class Meta:
         model = models.UserProfile
-        fields = ('id','email','name','password')
+        feed =ProfileFeedItemSerializer(many=True)
+        fields = ('id','email','name','password',)
         extra_kwargs={
             'password':{
                 'write_only':True,
                 'style':{'input_type':'password'}
             }
         }
+        depth = 1
     def create(self,validated_data):
         """Create and return a new user"""
         user = models.UserProfile.objects.create_user(
@@ -35,9 +45,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-class ProfileFeedItemSerializer(serializers.ModelSerializer):
-    """Serializes profile feed items"""
-    class Meta:
-        model = models.ProfileFeedItem
-        fields = ('id', 'user_profile', 'status_text', 'created_on')
-        extra_kwargs = {'user_profile': {'read_only': True}}
+

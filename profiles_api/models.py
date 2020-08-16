@@ -50,6 +50,10 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         """Retrun string representation of our user"""
         return self.email
 
+    @property
+    def feed(self):
+        return self.profilefeeditem_set.all()
+
 class ProfileFeedItem(models.Model):
     """profile status update"""
     user_profile = models.ForeignKey(
